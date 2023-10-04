@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'expo-sqlite-android'
+rootProject.name = 'oracle-sqlite-android'
 
-include ':expo-sqlite-android'
+include ':oracle-sqlite-android'
