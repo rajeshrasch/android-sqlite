@@ -1,7 +1,7 @@
 # Android SQLite support library
 
-![Build Status](https://github.com/requery/sqlite-android/actions/workflows/ci.yml/badge.svg)
-[![Download](https://jitpack.io/v/requery/sqlite-android.svg)](https://jitpack.io/#requery/sqlite-android)
+![Build Status](https://github.com/rajeshrasch/sqlite-android/actions/workflows/ci.yml/badge.svg)
+[![Download](https://jitpack.io/v/rajeshrasch/android-sqlite.svg)](https://jitpack.io/#rajeshrasch/sqlite-android)
 
 This is an Android specific distribution of the latest versions of SQLite.
 It contains the latest SQLite version and the Android specific database APIs
@@ -51,15 +51,15 @@ Then add the sqlite-android artifact from this repository as a dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.requery:sqlite-android:3.42.0'
+    implementation 'com.github.requery:sqlite-android:3.47.0'
 }
 ```
 Then change usages of `android.database.sqlite.SQLiteDatabase` to
-`io.requery.android.database.sqlite.SQLiteDatabase`, similarly extend
-`io.requery.android.database.sqlite.SQLiteOpenHelper` instead of
+`io.oracle.android.database.sqlite.SQLiteDatabase`, similarly extend
+`io.oracle.android.database.sqlite.SQLiteOpenHelper` instead of
 `android.database.sqlite.SQLiteOpenHelper`. Note similar changes maybe required for classes that
 depended on `android.database.sqlite.SQLiteDatabase` equivalent APIs are provided in the
-`io.requery.android.database.sqlite` package.
+`io.oracle.android.database.sqlite` package.
 
 If you expose `Cursor` instances across processes you should wrap the returned cursors in a
 [CrossProcessCursorWrapper](http://developer.android.com/reference/android/database/CrossProcessCursorWrapper.html)
@@ -109,13 +109,13 @@ Note that starting August 1, 2019, your apps published on Google Play will [need
 Requirements
 ------------
 
-The min SDK level is API level 19 (KitKat).
+The min SDK level is API level 23.
 
 Versioning
 ----------
 
 The library is versioned after the version of SQLite it contains. For changes specific to just the
-wrapper API a revision number is added e.g. 3.42.0-X, where X is the revision number.
+wrapper API a revision number is added e.g. 3.47.0-X, where X is the revision number.
 
 Acknowledgements
 ----------------

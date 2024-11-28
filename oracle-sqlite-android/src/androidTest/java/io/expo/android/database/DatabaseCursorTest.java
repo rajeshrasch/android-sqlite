@@ -17,7 +17,6 @@
 
 package io.oracle.android.database;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -93,7 +92,6 @@ public class DatabaseCursorTest {
         mDatabase.execSQL("INSERT INTO test (data) VALUES ('" + sString3 + "');");
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @MediumTest
     @Test
     public void testBlob() {

@@ -28,6 +28,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTransactionListener;
+import android.os.Build;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
@@ -44,7 +45,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import io.oracle.android.database.DatabaseErrorHandler;
 import io.oracle.android.database.DefaultDatabaseErrorHandler;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * oracleses methods to manage a SQLite database.
+ * Exposes methods to manage a SQLite database.
  *
  * <p>
  * SQLiteDatabase has methods to create, delete, execute SQL commands, and
@@ -911,22 +911,6 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
         addFunction(name, numArgs, function, 0);
     }
 
-    public void addUpdateListener(UpdateListener function) {
-        SQLiteUpdateListener wrapper = new SQLiteUpdateListener(function);
-
-        synchronized (mLock) {
-            throwIfNotOpenLocked();
-
-            mConfigurationLocked.updateListener = wrapper;
-            try {
-                mConnectionPoolLocked.reconfigure(mConfigurationLocked);
-            } catch (RuntimeException ex) {
-                mConfigurationLocked.updateListener = null;
-                throw ex;
-            }
-        }
-    }
-
     /**
      * Registers a Function callback as a function that can be called from
      * SQLite database triggers.
@@ -949,6 +933,21 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
                 mConnectionPoolLocked.reconfigure(mConfigurationLocked);
             } catch (RuntimeException ex) {
                 mConfigurationLocked.functions.remove(wrapper);
+                throw ex;
+            }
+        }
+    }
+
+    public void setUpdateHook(SQLiteUpdateHook updateHook) {
+        synchronized (mLock) {
+            throwIfNotOpenLocked();
+
+            mConfigurationLocked.sqliteUpdateHook = updateHook;
+
+            try {
+                mConnectionPoolLocked.reconfigure(mConfigurationLocked);
+            } catch (RuntimeException ex) {
+                mConfigurationLocked.sqliteUpdateHook = null;
                 throw ex;
             }
         }
@@ -1369,7 +1368,12 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
     public Cursor query(SupportSQLiteQuery supportQuery, android.os.CancellationSignal signal) {
         if (signal != null) {
             final CancellationSignal supportCancellationSignal = new CancellationSignal();
-            signal.setOnCancelListener(supportCancellationSignal::cancel);
+            signal.setOnCancelListener(new android.os.CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    supportCancellationSignal.cancel();
+                }
+            });
             return query(supportQuery, supportCancellationSignal);
         } else {
             return query(supportQuery, (CancellationSignal) null);
@@ -2490,10 +2494,6 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
          * @return String value of the result or null
          */
         void callback(Args args, Result result);
-    }
-
-    public interface UpdateListener {
-        void callback(String tableName, int operationType, int rowID);
     }
 
     static boolean hasCodec() {
