@@ -1,2 +1,3 @@
 .*
 !/.gitignore
+oracle-sqlite-android/src/Archive.zip

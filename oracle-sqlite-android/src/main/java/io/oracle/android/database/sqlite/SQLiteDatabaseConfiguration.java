@@ -63,6 +63,8 @@ public final class SQLiteDatabaseConfiguration {
      */
     public @SQLiteDatabase.OpenFlags int openFlags;
 
+    public SQLiteUpdateHook sqliteUpdateHook;
+
     /**
      * The maximum size of the prepared statement cache for each database connection.
      * Must be non-negative.
@@ -102,8 +104,6 @@ public final class SQLiteDatabaseConfiguration {
      * The custom extensions to register.
      */
     public final List<SQLiteCustomExtension> customExtensions = new ArrayList<>();
-
-    public SQLiteUpdateListener updateListener = null;
 
     /**
      * Creates a database configuration with the required parameters for opening a
@@ -186,7 +186,7 @@ public final class SQLiteDatabaseConfiguration {
         customExtensions.addAll(other.customExtensions);
         functions.clear();
         functions.addAll(other.functions);
-        updateListener = other.updateListener;
+        sqliteUpdateHook = other.sqliteUpdateHook;
     }
 
     /**
