@@ -22,12 +22,10 @@
 package io.oracle.android.database.sqlite;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteException;
-import android.os.Build;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -36,7 +34,6 @@ import androidx.collection.LruCache;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.OperationCanceledException;
 import io.oracle.android.database.CursorWindow;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -169,7 +166,8 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
 
     private static native boolean nativeHasCodec();
     private static native void nativeLoadExtension(long connectionPtr, String file, String proc);
-    private static native void nativeAddUpdateHook(long connectionPtr, SQLiteUpdateListener function);
+
+    private static native void nativeRegisterUpdateHook(long connectionPtr, SQLiteUpdateHook updateCallback);
 
     public static boolean hasCodec(){ return nativeHasCodec(); }
 
@@ -257,8 +255,10 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
             nativeLoadExtension(mConnectionPtr, extension.path, extension.entryPoint);
         }
 
-        if (mConfiguration.updateListener != null) {
-            nativeAddUpdateHook(mConnectionPtr, mConfiguration.updateListener);
+        final SQLiteUpdateHook sqliteUpdateHook = mConfiguration.sqliteUpdateHook;
+
+        if (sqliteUpdateHook != null) {
+            nativeRegisterUpdateHook(mConnectionPtr, sqliteUpdateHook);
         }
     }
 
@@ -461,8 +461,9 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
             }
         }
 
-        if (configuration.updateListener != null) {
-            nativeAddUpdateHook(mConnectionPtr, configuration.updateListener);
+        final SQLiteUpdateHook updateHook = configuration.sqliteUpdateHook;
+        if (updateHook != null) {
+            nativeRegisterUpdateHook(mConnectionPtr, updateHook);
         }
 
         // Remember what changed.
@@ -735,11 +736,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
                 try {
                     int fd = nativeExecuteForBlobFileDescriptor(
                             mConnectionPtr, statement.mStatementPtr);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                        return fd >= 0 ? ParcelFileDescriptor.adoptFd(fd) : null;
-                    } else {
-                        throw new UnsupportedOperationException();
-                    }
+                    return fd >= 0 ? ParcelFileDescriptor.adoptFd(fd) : null;
                 } finally {
                     detachCancellationSignal(cancellationSignal);
                 }
@@ -1039,11 +1036,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         if (count != statement.mNumParameters) {
             String message = "Expected " + statement.mNumParameters + " bind arguments but "
                 + count + " were provided.";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                throw new SQLiteBindOrColumnIndexOutOfRangeException(message);
-            } else {
-                throw new SQLiteException(message);
-            }
+            throw new SQLiteBindOrColumnIndexOutOfRangeException(message);
         }
         if (count == 0) {
             return;
@@ -1097,7 +1090,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
      * @param obj the object whose value type is to be returned
      * @return object value type
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private static int getTypeOfObject(Object obj) {
         if (obj == null) {
             return Cursor.FIELD_TYPE_NULL;
