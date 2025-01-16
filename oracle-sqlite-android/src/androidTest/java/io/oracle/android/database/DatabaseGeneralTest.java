@@ -39,7 +39,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -56,9 +59,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 @SuppressWarnings({"deprecated", "ResultOfMethodCallIgnored"})
 @RunWith(AndroidJUnit4.class)
@@ -168,17 +168,30 @@ public class DatabaseGeneralTest {
 
     @MediumTest
     @Test
-    public void testUpdateListener() {
-        AtomicInteger executions = new AtomicInteger();
-        mDatabase.addUpdateListener((tableName, operationType, rowID) -> {
-            executions.getAndIncrement();
+    public void testSetUpdateHook() {
+        // Initialize AtomicReferences with a default value
+        AtomicInteger calledOperation = new AtomicInteger();
+        AtomicReference<String> calledDatabaseName = new AtomicReference<>("");
+        AtomicReference<String> calledTableName = new AtomicReference<>("");
+        AtomicLong calledRowId = new AtomicLong();
+
+        // Set up the update hook
+        mDatabase.setUpdateHook((operationType, databaseName, tableName, rowId) -> {
+            calledOperation.set(operationType);
+            calledDatabaseName.set(databaseName);
+            calledTableName.set(tableName);
+            calledRowId.set(rowId);
         });
 
-        mDatabase.execSQL("CREATE TABLE phones (num TEXT);");
-        mDatabase.execSQL("INSERT INTO phones (num) VALUES ('911');");
-        mDatabase.execSQL("INSERT INTO phones (num) VALUES ('5555');");
-        mDatabase.execSQL("INSERT INTO phones (num) VALUES ('+" + PHONE_NUMBER + "');");
-        assertEquals(executions.get(), 3);
+        // Execute SQL statements
+        mDatabase.execSQL("CREATE TABLE testUpdateHook (_id INTEGER PRIMARY KEY, data TEXT);");
+        mDatabase.execSQL("INSERT INTO testUpdateHook (data) VALUES ('newValue');");
+
+        // Verify that the update hook was called correctly
+        assertEquals(18, calledOperation.get());
+        assertEquals("main", calledDatabaseName.get());
+        assertEquals("testUpdateHook", calledTableName.get());
+        assertEquals(1, calledRowId.get());
     }
 
     @MediumTest
