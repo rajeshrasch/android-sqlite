@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    buildToolsVersion = "35.0.0"
+    buildToolsVersion = "34.0.0"
     ndkVersion "27.2.12479018"
 
-    compileSdk 35
+    compileSdk 34
 
     namespace "io.oracle.android.sqlite"
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         versionName VERSION_NAME
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    api("androidx.core:core:1.15.0")
+    api("androidx.core:core:1.10.1")
     api("androidx.sqlite:sqlite:2.4.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:core:1.6.1")
