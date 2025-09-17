@@ -7,10 +7,10 @@ plugins {
 }
 
 android {
-    buildToolsVersion = "34.0.0"
-    ndkVersion "27.2.12479018"
+    buildToolsVersion = "35.0.1"
+    ndkVersion "28.0.13004108"
 
-    compileSdk 34
+    compileSdk 35
 
     namespace "io.oracle.android.sqlite"
 
@@ -36,8 +36,8 @@ android {
         abortOnError false
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     externalNativeBuild {
@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    api("androidx.core:core:1.10.1")
+    api("androidx.core:core:1.15.0")
     api("androidx.sqlite:sqlite:2.4.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:core:1.6.1")
@@ -58,7 +58,7 @@ dependencies {
 }
 
 ext {
-    sqliteDistributionUrl = "https://www.sqlite.org/2024/sqlite-amalgamation-3470000.zip"
+    sqliteDistributionUrl = "https://www.sqlite.org/2025/sqlite-amalgamation-3490000.zip"
 }
 
 tasks.register("downloadSqlite", Download) {

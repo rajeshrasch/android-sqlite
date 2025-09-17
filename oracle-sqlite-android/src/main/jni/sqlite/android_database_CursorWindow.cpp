@@ -21,7 +21,7 @@
 
 #include <inttypes.h>
 #include <jni.h>
-#include <JNIHelp.h>
+#include "JNIHelp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
