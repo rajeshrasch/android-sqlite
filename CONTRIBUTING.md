@@ -6,3 +6,6 @@ request. When submitting a PR the request will be automatically built and tested
 environment, these tests must pass before any change is merged. One of the primary goals of this
 library is compatibility with the Android SQLite API be sure to keep that in mind when proposing
 any change.
+
+Oracle Contributor Agreement Application.
+https://oca.opensource.oracle.com/

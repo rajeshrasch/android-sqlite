@@ -11,5 +11,6 @@
 -keep public class io.oracle.android.database.sqlite.SQLiteDatabase { *; }
 -keep public class io.oracle.android.database.sqlite.SQLiteOpenHelper { *; }
 -keep public class io.oracle.android.database.sqlite.SQLiteStatement { *; }
+-keep public class io.oracle.android.database.sqlite.SQLiteUpdateHook { *; }
 -keep public class io.oracle.android.database.CursorWindow { *; }
 -keepattributes Exceptions,InnerClasses
